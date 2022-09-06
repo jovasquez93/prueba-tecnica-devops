@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  api:
+    image: jovasquez/api
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 80
+    ports:
+      - 8000:80
+    depends_on:
+      - rabbitmq
+
+  listener:
+    image: jovasquez/listener
+    command: sh -c "sleep 10 && python -u main.py"
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+    environment:
+      RABBITMQ_DEFAULT_USER: "user"
+      RABBITMQ_DEFAULT_PASS: "pass"
+      RABBITMQ_DEFAULT_VHOST: "/"
+
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: devops
+      POSTGRES_USER: devops
+      POSTGRES_PASSWORD: devops
